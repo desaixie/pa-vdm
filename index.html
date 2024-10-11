@@ -206,7 +206,7 @@
             <div class="content has-text-justified">
               <big>
                 <p>
-                  Existing video diffusion models can only generate short video clips (e.g. 10 seconds or 240 frames) due to GPU memory constraints during training.
+                  Current frontier video diffusion models can only generate short video clips (e.g. 10 seconds or 240 frames) due to GPU memory constraints during training.
                   To enable long video generation, autoregressively applying video diffusion models is the straightforward solution.
                 </p>
               </big>
@@ -233,7 +233,7 @@
 <!--              </p>-->
               <big>
                 <p>
-                  Existing methods for autoregressively applying video diffusion models, i.e. the <i>replacement</i> methods, directly replace the noisy latent frames with the condition latents and denoises the latents like regular video diffusion models.
+                  Existing methods for autoregressively applying video diffusion models, i.e. the <i>replacement</i> methods, directly replace the noisy latent frames with the condition latents and then denoise the latents like regular video diffusion models.
                 </p>
                 <p>
                   Our models denoises the latent frames <i>progressively</i>, where each subsequent latent has a slightly higher noise level than the previous one.
@@ -264,11 +264,6 @@
       </p>
     </big>
 
-    <br>
-    <p>
-    <center>Please refresh the page is any video fails to load.</center>
-    </p>
-    <br>
     <br>
 
     <h3 class="title is-3">
@@ -396,7 +391,6 @@
 
     </div>
 
-    <br>
     <br>
     <br>
 
