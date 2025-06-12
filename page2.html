@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="description" content="Progressive Autoregressive Video Diffusion Models">
+  <meta name="keywords" content="long video generation, diffusion models">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title> Progressive Autoregressive Video Diffusion Models </title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans&family=Noto+Sans&display=swap" rel="stylesheet">
+  <!--  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">-->
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="preload" href="./static/css/index.css" as="style">
+  <link rel="stylesheet" href="./static/css/index.css">
+  <!-- <link rel="icon" href="./static/images/favicon.svg"> -->
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  <script src="./static/js/index.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      bulmaCarousel.attach('#carousel-demo', {
+        slidesToScroll: 1,
+        slidesToShow: 1,
+        infinite: false, // Enable infinite scrolling
+        navigation: true,
+        pagination: true,
+        loop: false,
+      });
+    });
+  </script>
+
+  <script>
+    $(window).on("load", function () {
+      const videos = $(".first-column-video");
+      const rowLabels = $(".row-label");
+
+      console.log("Selected videos:", videos.length);
+
+      if (videos.length !== rowLabels.length) {
+        console.warn("Number of first-column videos and row labels do not match!");
+        return;
+      }
+
+      setTimeout(function () {
+        console.log("Manually checking video dimensions after delay");
+        videos.each(function (index) {
+          const videoHeight = this.videoHeight * (this.clientWidth / this.videoWidth);
+          rowLabels.eq(index).css("margin-bottom", videoHeight + "px");
+          console.log("Video height: ", videoHeight);
+        });
+      }, 3000);
+    });
+  </script>
+
+  <style>
+      .row-labels {
+          display: flex;
+          flex-direction: column;
+          gap: 20px; /* Space between row labels */
+          margin-right: 20px; /* Space between labels and carousel */
+      }
+
+      .row-label {
+          font-weight: bold;
+          font-size: 18px;
+          text-align: right;
+          white-space: nowrap;
+      }
+  </style>
+
+
+</head>
+
+<body>
+
+<section class="hero teaser is-medium">
+  <div class="container is-max-desktop has-carousel hero-carousel">
+    <h3 class="title is-3 has-text-centered"> Ablation Study </h3>
+    <h4 class="subtitle is-4 has-text-centered"> Ablation studies on Chunked Frames and Overlapped Conditioning </h4>
+    <br>
+    <big>
+      <p>
+        Chunked Frames prevents divergence. Overlapped Conditioning prevents chunk-to-chunk discontinuity.
+      </p>
+    </big>
+    <br>
+    <br>
+
+    <div class="hero-body" style="padding: 10px 0; "> <!-- Reduce vertical padding -->
+      <div class="columns">
+        <!-- Row Labels Column -->
+        <div class="column is-one-fifths">
+          <div class="row-labels">
+            <div class="row-label">PA-M full <br> (with Chunked Frames and Overlapped Conditioning) </div>
+            <div class="row-label">PA-M with Chunked Frames</div>
+            <div class="row-label">PA-M without both techniques</div>
+            <div class="row-label">PA-O full <br> (with Chunked Frames and Overlapped Conditioning) </div>
+            <div class="row-label">PA-O with Chunked Frames</div>
+<!--            <div class="row-label">PA-O without both techniques</div>-->
+          </div>
+        </div>
+
+
+        <div class="column is-four-fifths">
+          <div id="carousel-demo" class="hero-carousel carousel is-centered" style="overflow: hidden;">
+
+            <!-- Col 1 -->
+            <div class="carousel-item" style="max-width: 60%; margin: 0 auto;">
+              <!-- Adjust the size of the video and center it -->
+              <div class="container">
+                <video id="teaser" class="first-column-video" autoplay muted loop playsinline controls
+                       style="width: 100%; height: auto;">
+                  <source src="./ablation/PA-M_full_clipped/row_1_col_0.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" class="first-column-video" autoplay muted loop playsinline controls
+                       style="width: 100%; height: auto;">
+                  <source src="./ablation/PA-M_no_overlap_clipped/row_1_col_0.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" class="first-column-video" autoplay muted loop playsinline controls
+                       style="width: 100%; height: auto;">
+                  <source src="./ablation/PA-M_no_overlap_no_chunk/row_1_col_0.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" class="first-column-video" autoplay muted loop playsinline controls
+                       style="width: 100%; height: auto;">
+                  <source src="./ablation/PA-O-b_full/row_1_col_0.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" class="first-column-video" autoplay muted loop playsinline controls
+                       style="width: 100%; height: auto;">
+                  <source src="./ablation/PA-O-b_no_overlap/row_1_col_0.mp4" type="video/mp4">
+                </video>
+              </div>
+            </div>
+
+            <!-- Col 2 -->
+            <div class="carousel-item" style="max-width: 60%; margin: 0 auto;">
+              <!-- Adjust the size of the video and center it -->
+              <div class="container">
+                <video id="teaser" autoplay muted loop playsinline controls
+                       style="width: 100%; height: auto;">
+                  <source src="./ablation/PA-M_full_clipped/row_2_col_0.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls
+                       style="width: 100%; height: auto;">
+                  <source src="./ablation/PA-M_no_overlap_clipped/row_2_col_0.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls
+                       style="width: 100%; height: auto;">
+                  <source src="./ablation/PA-M_no_overlap_no_chunk/row_2_col_0.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls
+                       style="width: 100%; height: auto;">
+                  <source src="./ablation/PA-O-b_full/row_2_col_0.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls
+                       style="width: 100%; height: auto;">
+                  <source src="./ablation/PA-O-b_no_overlap/row_2_col_0.mp4" type="video/mp4">
+                </video>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <h4 class="subtitle is-4 has-text-centered"> Ablation study on Variable Length </h4>
+    <br>
+    <big>
+      <p>
+        Variable Length training and inference enables the model to generate videos of arbitrary lengths, as shown at the 1st and 59th seconds.
+      </p>
+    </big>
+    <br>
+    <br>
+
+    <div class="hero-body" style="padding: 10px 0; "> <!-- Reduce vertical padding -->
+      <div class="columns">
+        <!-- Row Labels Column -->
+        <div class="column is-one-fifths">
+          <div class="row-labels">
+            <div class="row-label">PA-M full <br> (with Variable Length training and inference) </div>
+            <div class="row-label">PA-M without Variable Length training <br> but with Variable Length inference</div>
+          </div>
+        </div>
+
+
+        <div class="column is-four-fifths">
+          <div id="carousel-demo" class="hero-carousel carousel is-centered" style="overflow: hidden;">
+
+            <!-- Col 1 -->
+            <div class="carousel-item" style="max-width: 60%; margin: 0 auto;">
+              <!-- Adjust the size of the video and center it -->
+              <div class="container">
+                <video id="teaser" class="first-column-video" autoplay muted loop playsinline controls
+                       style="width: 100%; height: auto;">
+                  <source src="./ablation/PA-M_with_variable_train/row_4_col_0.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" class="first-column-video" autoplay muted loop playsinline controls
+                       style="width: 100%; height: auto;">
+                  <source src="./ablation/PA-M_without_variable_train/row_4_col_0.mp4" type="video/mp4">
+                </video>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+<footer class="footer">
+  <div class="container">
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content">
+          <p>
+            We borrow the source code of this website from <a
+              href="https://github.com/nerfies/nerfies.github.io">HERE</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+
+</html>
