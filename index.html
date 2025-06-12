@@ -8,48 +8,31 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title> Progressive Autoregressive Video Diffusion Models </title>
 
-  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans&family=Noto+Sans&display=swap" rel="stylesheet">
+  <!--  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">-->
 
-<!--  <link rel="stylesheet" href="./static/css/bulma.min.css">-->
-<!--  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">-->
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
   <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
   <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="preload" href="./static/css/index.css" as="style">
   <link rel="stylesheet" href="./static/css/index.css">
   <!-- <link rel="icon" href="./static/images/favicon.svg"> -->
 
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
   <script defer src="./static/js/fontawesome.all.min.js"></script>
-<!--  <script src="./static/js/bulma-carousel.min.js"></script>-->
+  <script src="./static/js/bulma-carousel.min.js"></script>
   <script src="./static/js/bulma-slider.min.js"></script>
   <script src="./static/js/index.js"></script>
-
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.4/css/bulma.min.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma-carousel@4.0.3/dist/css/bulma-carousel.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/bulma-carousel@4.0.3/dist/js/bulma-carousel.min.js"></script>
-
-  <script async src="https://unpkg.com/es-module-shims@1.8.0/dist/es-module-shims.js"></script>
-
-  <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.1.1/model-viewer.min.js"></script>
-
-  <script>
-
-    $(function () {
-      var includes = $('[data-include]')
-      $.each(includes, function () {
-        var file = $(this).data('include') + '.html'
-        $(this).load(file)
-        console.log(file);
-      })
-    })
-
-  </script>
 
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       bulmaCarousel.attach('#carousel-demo', {
         slidesToScroll: 1,
-        slidesToShow: 2,
+        slidesToShow: 1,
         infinite: false, // Enable infinite scrolling
         navigation: true,
         pagination: true,
@@ -58,28 +41,45 @@
     });
   </script>
 
-  <script type="importmap">
-    {
-      "imports": {
-        "three": "https://unpkg.com/three@0.156.1/build/three.module.js",
-        "three/controls/OrbitControls": "https://unpkg.com/three@0.156.1/examples/jsm/controls/OrbitControls.js",
-        "three/libs/stats": "https://unpkg.com/three@0.156.1/examples/jsm/libs/stats.module.js"
+  <script>
+    $(window).on("load", function () {
+      const videos = $(".first-column-video");
+      const rowLabels = $(".row-label");
+
+      console.log("Selected videos:", videos.length);
+
+      if (videos.length !== rowLabels.length) {
+        console.warn("Number of first-column videos and row labels do not match!");
+        return;
       }
-    }
+
+      setTimeout(function () {
+        console.log("Manually checking video dimensions after delay");
+        videos.each(function (index) {
+          const videoHeight = this.videoHeight * (this.clientWidth / this.videoWidth);
+          rowLabels.eq(index).css("margin-bottom", videoHeight + "px");
+          console.log("Video height: ", videoHeight);
+        });
+      }, 3000);
+    });
   </script>
-  <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.1.1/model-viewer.min.js"></script>
+
   <style>
-      model-viewer {
-          width: 300px;
-          height: 300px;
+      .row-labels {
+          display: flex;
+          flex-direction: column;
+          gap: 20px; /* Space between row labels */
+          margin-right: 20px; /* Space between labels and carousel */
       }
 
-      .container {
-        max-width: 900px; /* Change this to the desired width */
-        margin: 0 auto; /* Ensure the container is centered */
+      .row-label {
+          font-weight: bold;
+          font-size: 18px;
+          text-align: right;
+          white-space: nowrap;
       }
-
   </style>
+
 
 </head>
 
@@ -182,13 +182,7 @@
         <div class="content has-text-justified">
           <big>
             <p>
-              Current frontier video diffusion models have demonstrated remarkable results at generating high-quality videos.
-              However, they can only generate short video clips, normally around 10 seconds or 240 frames, due to computation limitations during training.
-              In this work, we show that existing models can be naturally extended to <i>autoregressive</i> video diffusion models without changing the architectures.
-              Our key idea is to assign the latent frames with <i>progressively</i> increasing noise levels rather than a single noise level,
-              which allows for fine-grained condition among the latents and large overlaps between the attention windows.
-              Such progressive video denoising allows our models to autoregressively generate video frames without quality degradation or abrupt scene changes.
-              We present state-of-the-art results on long video generation at 1 minute (1440 frames at 24 FPS).
+              Current frontier video diffusion models have demonstrated remarkable results at generating high-quality videos. However, they can only generate short video clips, normally around 10 seconds or 240 frames, due to computation limitations during training. Existing methods naively achieve autoregressive long video generation by directly placing the ending of the previous clip at the front of the attention window as conditioning, which leads to abrupt scene changes, unnatural motion, and error accumulation. In this work, we introduce a more natural formulation of autoregressive long video generation by revisiting the noise level assumption in video diffusion models. Our key idea is to <strong>1.</strong> assign the frames with per-frame, progressively increasing noise levels rather than a single noise level and <strong>2.</strong> denoise and shift the frames in small intervals rather than all at once. This allows for smoother attention correspondence among frames with adjacent noise levels, larger overlaps between the attention windows, and better propagation of information from the earlier to the later frames. Video diffusion models equipped with our progressive noise schedule can autoregressively generate long videos with much improved fidelity compared to the baselines and minimal quality degradation over time. We present the first results on text-conditioned 60-second (1440 frames) long video generation at a quality close to frontier models.
             </p>
           </big>
         </div>
@@ -202,25 +196,64 @@
       <div class="container is-max-desktop">
         <div class="columns is-centered has-text-centered">
           <div class="column is-full-width has-text-justified">
-            <h2 class="title is-3 has-text-centered">Progressive Autoregressive Video Diffusion Models</h2>
+            <h2 class="title is-3 has-text-centered">Motivation</h2>
+            <!-- <h2 class="title is-3 has-text-centered">Progressive Autoregressive Video Diffusion Models</h2> -->
             <div class="content has-text-justified">
               <big>
                 <p>
-                  Current frontier video diffusion models can only generate short video clips (e.g. 10 seconds or 240 frames) due to GPU memory constraints during training.
+                  Current frontier video diffusion models can only generate short video clips (e.g. 10 seconds or 240 frames) due to the expensive O(N^2) long sequence modeling in DiTs.
                   To enable long video generation, autoregressively applying video diffusion models is the straightforward solution.
+
+                </p>
+                <p>
+                  How to generate longer videos?
+                  <ul>
+                    <li>Increasing video length at inference time results in poor video quality.</li>
+                    <li>Naïve autoregressively video extension leads to drifting after 3-4 times.</li>
+                  </ul>
                 </p>
               </big>
 <!--              <p>-->
 <!--                We marry autoregressive generation with video diffusion models, benefiting from long-sequence generation and high-quality video generation capabilites from each approach.-->
 <!--              </p>-->
             </div>
+
             <br>
+
             <div class="content has-text-centered">
-              <img src="./static/images/figure1 merged.png" class="inline-figure-six" alt="Abilities of teacher forcing, full-sequence diffusion, and Diffusion Forcing.">
+              <h2 class="title is-3 has-text-centered">A new way to noise/denoise?</h2>
+               <div class="columns">
+                  <div class="column is-half">
+                      <img src="./static/images/fixed.png" alt="Image 1 description" style="width: 100%;">
+                  </div>
+                  <div class="column is-half">
+                      <img src="./static/images/progressive.png" alt="Image 2 description" style="width: 100%;">
+                  </div>
+              </div>
+              <!-- <img src="./static/images/figure1 merged.png" class="inline-figure-six" alt="Abilities of teacher forcing, full-sequence diffusion, and Diffusion Forcing."> -->
               <big>
                 <p>
-                  Comparison of autoregressively applying video diffusion models with <i>replacement</i> methods
-                  (left) vs. our <i>progressive autoregressive</i> video diffusion models (right).
+                  Instead of shared noise level among frames, assign <i>progressively increasing</i> noise levels to each frame!
+                </p>
+              </big>
+            </div>
+
+            <br>
+
+
+            <div class="content has-text-centered">
+              <h2 class="title is-3 has-text-centered">Method</h2>
+               <div class="columns">
+                  <div class="column is-half">
+                      <img src="./static/images/figure1-replacement.png" alt="Image 1 description" style="width: 100%;">
+                  </div>
+                  <div class="column is-half">
+                      <img src="./static/images/figure1-progressive.png" alt="Image 2 description" style="width: 100%;">
+                  </div>
+                </div>
+              <big>
+                <p>
+                  The <i>replacement</i> methods (left) vs. out <i>PA-VDM</i> (right).
                 </p>
               </big>
             </div>
@@ -232,15 +265,35 @@
 <!--                latents. Further more, as the video diffusion model is only trained on real videos, it cannot handle such distribution shift towards the generated inaccurate latents, resulting in quality degradations.-->
 <!--              </p>-->
               <big>
+                Given previously generated F=30 frames,
                 <p>
-                  Existing methods for autoregressively applying video diffusion models, i.e. the <i>replacement</i> methods, directly replace the noisy latent frames with the condition latents and then denoise the latents like regular video diffusion models.
+                  Traditional <strong>replacement methods</strong>:
+                  <ul>
+                    <li>Directly place condition frames at the beginning of noisy frames.</li>
+                    <li>repeat every 30 denoising steps.</li>
+                    <li>😔 Severe drifting at 20s, small overlap, unnatural, limited motion.</li>
+                  </ul>
+                  
+
+                  
+                  <strong>Progressive Autoregressive Video Diffusion Models</strong> (<strong>PA-VDM</strong>):
+                  <ul>
+                    <li>Assign per-frame, progressively increasing noise levels. </li>
+                    <li>Shift the frames by 1 and repeat every 1 denoising step. </li>
+                    <li>😁 minimal drifting up to 60s, maximum overlap, natural motion. Better information propagation from earlier clean frames to later uncertain frames.</li>
+                  </ul>
+                  
+
                 </p>
-                <p>
+                <!-- <p>
+                  Existing methods for autoregressively applying video diffusion models, i.e. the <i>replacement</i> methods, directly replace the noisy latent frames with the condition latents and then denoise the latents like regular video diffusion models.
+                </p> -->
+                <!-- <p>
                   Our models denoises the latent frames <i>progressively</i>, where each subsequent latent has a slightly higher noise level than the previous one.
                   This provides more fine-grained condition, where the later frames with more uncertainty can follow the pattern of the earlier, more certain frames.
                   Additionally, the attention windows of our models can have larger overlaps without extra computation cost.
                   As a result, our models can autoregressively generate video frames without quality degradation or abrupt scene changes.
-                </p>
+                </p> -->
               </big>
             </div>
           </div>
@@ -254,479 +307,455 @@
 <section class="hero teaser is-medium">
   <div class="container is-max-desktop has-carousel hero-carousel">
     <!-- Titles -->
-    <h2 class="title is-2">
-      <center>Results</center>
-    </h2>
+    <h3 class="title is-3 has-text-centered"> Comparison with baselines </h3>
+    <h4 class="subtitle is-4 has-text-centered">Multiple videos generated by our models and baselines.  </h4>
     <big>
       <p>
-        We implement our progressive autoregressive generation and two baseline methods, <i>replacement-with-noise</i> and <i>replacement-without-noise</i>, on two pre-trained video diffusion models, Open-Sora v1.2 and a modified variant of Open-Sora, denoted as M.
-        We also compare to Stable Video Diffusion (SVD-XT), which does I2V generation iteratively and StreamingSVD from StreamingT2V, which trains additional modules for autoregressive video generation.
+        Please refer to the main paper (Sec. 4.1, 4.2) for the meaning of each method/model name. RW-M only has partial results.<br>
+        All videos are resized to have widths of 320 pixels and the corresponding heights that follow their original aspect ratios. Open-Sora v1.2 (O), StreamingSVD, SVD-XT, and FIFO-OSP videos originally have resolutions of 424x240, 1280x720, 1024x576, and 256x256 respectively.<br>
+        The results below demonstrate that, using the 60-second long video generation benchmark, our method is substantially better at generating long videos with high visual quality and temporal consistency than the baseline methods.
       </p>
     </big>
-
     <br>
-
-    <h3 class="title is-3">
-      <center>Our Results:</center>
-    </h3>
-    <h4 class="subtitle is-4">
-      <center> Progressive-Autoregressive with M </center>
-    </h4>
-
-    <!-- Carousel for Videos -->
     <div class="hero-body" style="padding: 10px 0; "> <!-- Reduce vertical padding -->
-      <div id="carousel-demo" class="hero-carousel carousel is-centered" style="overflow: hidden;">
-        <!-- Video 1 -->
-        <div class="carousel-item" style="max-width: 98%; margin: 0 auto;"> <!-- Adjust the size of the video and center it -->
-          <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
-            <source src="./static/videos/PA-M/row_1.mp4" type="video/mp4">
-          </video>
+      <div class="columns">
+        <!-- Row Labels Column -->
+        <div class="column is-one-fifths">
+          <div class="row-labels">
+            <div class="row-label has-text-weight-bold">PA-M (ours)</div>
+            <div class="row-label">RW-M</div>
+            <div class="row-label has-text-weight-bold">PA-O-b (ours)</div>
+            <div class="row-label">RN-O-b</div>
+            <div class="row-label">StreamingSVD</div>
+            <div class="row-label">SVD-XT</div>
+            <div class="row-label">FIFO-OSP</div>
+          </div>
         </div>
-
-        <!-- Video 2 -->
-        <div class="carousel-item" style="max-width: 98%; margin: 0 auto;">
-          <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
-            <source src="./static/videos/PA-M/row_4.mp4" type="video/mp4">
-          </video>
-        </div>
-
-        <!-- Video 3 -->
-        <div class="carousel-item" style="max-width: 98%; margin: 0 auto;">
-          <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
-            <source src="./static/videos/PA-M/row_5.mp4" type="video/mp4">
-          </video>
-        </div>
-
-      <!-- Video 4 -->
-      <div class="carousel-item" style="max-width: 98%; margin: 0 auto;">
-        <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
-          <source src="./static/videos/PA-M/row_2.mp4" type="video/mp4">
-        </video>
-      </div>
-
-      <!-- Video 5 -->
-      <div class="carousel-item" style="max-width: 98%; margin: 0 auto;">
-        <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
-          <source src="./static/videos/PA-M/row_6.mp4" type="video/mp4">
-        </video>
-      </div>
-
-      <!-- Video 6 -->
-      <div class="carousel-item" style="max-width: 98%; margin: 0 auto;">
-        <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
-          <source src="./static/videos/PA-M/row_20.mp4" type="video/mp4">
-        </video>
-      </div>
-
-
-      <!-- Video 7 -->
-      <div class="carousel-item" style="max-width: 98%; margin: 0 auto;">
-        <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
-          <source src="./static/videos/PA-M/row_10.mp4" type="video/mp4">
-        </video>
-      </div>
-
-      <!-- Video 8 -->
-      <div class="carousel-item" style="max-width: 98%; margin: 0 auto;">
-        <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
-          <source src="./static/videos/PA-M/row_12.mp4" type="video/mp4">
-        </video>
-      </div>
-
-      <!-- Video 9 -->
-      <div class="carousel-item" style="max-width: 98%; margin: 0 auto;">
-        <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
-          <source src="./static/videos/PA-M/row_15.mp4" type="video/mp4">
-        </video>
-      </div>
-
-      <!-- Video 10 -->
-      <div class="carousel-item" style="max-width: 98%; margin: 0 auto;">
-        <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
-          <source src="./static/videos/PA-M/row_16.mp4" type="video/mp4">
-        </video>
-      </div>
-
-      <!-- Video 11 -->
-      <div class="carousel-item" style="max-width: 98%; margin: 0 auto;">
-        <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
-          <source src="./static/videos/PA-M/row_22.mp4" type="video/mp4">
-        </video>
-      </div>
-
-      <!-- Video 12 -->
-      <div class="carousel-item" style="max-width: 98%; margin: 0 auto;">
-        <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
-          <source src="./static/videos/PA-M/row_24.mp4" type="video/mp4">
-        </video>
-      </div>
-
-        <!-- Video 13 -->
-      <div class="carousel-item" style="max-width: 98%; margin: 0 auto;">
-        <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
-          <source src="./static/videos/PA-M/row_33.mp4" type="video/mp4">
-        </video>
-      </div>
-
-      <!-- Video 14 -->
-      <div class="carousel-item" style="max-width: 98%; margin: 0 auto;">
-        <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
-          <source src="./static/videos/PA-M/row_35.mp4" type="video/mp4">
-        </video>
-      </div>
-
-      <!-- Video 15 -->
-      <div class="carousel-item" style="max-width: 98%; margin: 0 auto;">
-        <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
-          <source src="./static/videos/PA-M/row_36.mp4" type="video/mp4">
-        </video>
-      </div>
-
-      <!-- Video 16 -->
-      <div class="carousel-item" style="max-width: 98%; margin: 0 auto;">
-        <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
-          <source src="./static/videos/PA-M/row_40.mp4" type="video/mp4">
-        </video>
-      </div>
-
-    </div>
-
-    <br>
-    <br>
-
-
-
-
-    <h3 class="title is-3">
-      <center>Comparison with baselines</center>
-    </h3>
-
-    <h4 class="subtitle is-4">
-      <center>Progressive-Autoregressive with M (ours)</center>
-    </h4>
-
-    <!-- Carousel for Videos -->
-    <div class="hero-body" style="padding: 10px 0; "> <!-- Reduce vertical padding -->
-      <div id="carousel-demo" class="hero-carousel carousel is-centered" style="overflow: hidden;">
-        <!-- Video 1 -->
-        <div class="carousel-item" style="max-width: 80%; margin: 0 auto;"> <!-- Adjust the size of the video and center it -->
-          <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
-            <source src="./static/videos/PA-M/row_1.mp4" type="video/mp4">
-          </video>
-        </div>
-
-        <!-- Video 2 -->
-        <div class="carousel-item" style="max-width: 80%; margin: 0 auto;">
-          <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
-            <source src="./static/videos/PA-M/row_4.mp4" type="video/mp4">
-          </video>
-        </div>
-
-        <!-- Video 3 -->
-        <div class="carousel-item" style="max-width: 80%; margin: 0 auto;">
-          <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
-            <source src="./static/videos/PA-M/row_5.mp4" type="video/mp4">
-          </video>
-        </div>
-
-      <!-- Video 4 -->
-      <div class="carousel-item" style="max-width: 80%; margin: 0 auto;">
-        <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
-          <source src="./static/videos/PA-M/row_2.mp4" type="video/mp4">
-        </video>
-      </div>
-
-      <!-- Video 5 -->
-      <div class="carousel-item" style="max-width: 80%; margin: 0 auto;">
-        <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
-          <source src="./static/videos/PA-M/row_6.mp4" type="video/mp4">
-        </video>
-      </div>
-
-      <!-- Video 6 -->
-      <div class="carousel-item" style="max-width: 80%; margin: 0 auto;">
-        <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
-          <source src="./static/videos/PA-M/row_20.mp4" type="video/mp4">
-        </video>
-      </div>
-    </div>
-
-
-
-    <h4 class="subtitle is-4">
-      <center>Replacement-with-noise with M </center>
-    </h4>
-
-    <!-- Carousel for Videos -->
-    <div class="hero-body" style="padding: 10px 0;"> <!-- Reduce vertical padding -->
-      <div id="carousel-demo" class="hero-carousel carousel is-centered" style="overflow: hidden;">
-        <!-- Video 1 -->
-        <div class="carousel-item" style="max-width: 80%; margin: 0 auto;"> <!-- Adjust the size of the video and center it -->
-          <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
-            <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/M-RW/row_1_col_1.mp4" type="video/mp4">
-          </video>
-        </div>
-
-        <!-- Video 2 -->
-        <div class="carousel-item" style="max-width: 80%; margin: 0 auto;">
-          <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
-            <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/M-RW/row_4_col_0.mp4" type="video/mp4">
-          </video>
-        </div>
-
-        <!-- Video 3 -->
-        <div class="carousel-item" style="max-width: 80%; margin: 0 auto;">
-          <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
-            <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/M-RW/row_5_col_1.mp4" type="video/mp4">
-          </video>
-        </div>
-
-
-        <!-- Video 4 -->
-        <div class="carousel-item" style="max-width: 80%; margin: 0 auto;"> <!-- Adjust the size of the video and center it -->
-          <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
-            <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/M-RW/row_2_col_1.mp4" type="video/mp4">
-          </video>
-        </div>
-
-        <!-- Video 5 -->
-        <div class="carousel-item" style="max-width: 80%; margin: 0 auto;">
-          <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
-            <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/M-RW/row_6_col_0.mp4" type="video/mp4">
-          </video>
-        </div>
-
-        <!-- Video 6 -->
-        <div class="carousel-item" style="max-width: 80%; margin: 0 auto;">
-          <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
-            <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/M-RW/row_14_col_1.mp4" type="video/mp4">
-          </video>
-        </div>
-      </div>
-    </div>
-
-
-
-    <h4 class="subtitle is-4">
-      <center>Progressive-Autoregressive with Open-Sora (ours)</center>
-    </h4>
-
-    <!-- Carousel for Videos -->
-    <div class="hero-body" style="padding: 10px 0;"> <!-- Reduce vertical padding -->
-      <div id="carousel-demo" class="hero-carousel carousel is-centered" style="overflow: hidden;">
-        <!-- Video 1 -->
-        <div class="carousel-item" style="max-width: 80%; margin: 0 auto;"> <!-- Adjust the size of the video and center it -->
-          <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
-            <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/O-PA/row_1_col_1.mp4" type="video/mp4">
-          </video>
-        </div>
-
-        <!-- Video 2 -->
-        <div class="carousel-item" style="max-width: 80%; margin: 0 auto;">
-          <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
-            <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/O-PA/row_4_col_1.mp4" type="video/mp4">
-          </video>
-        </div>
-
-        <!-- Video 3 -->
-        <div class="carousel-item" style="max-width: 80%; margin: 0 auto;">
-          <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
-            <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/O-PA/row_5_col_0.mp4" type="video/mp4">
-          </video>
-        </div>
-
-        <!-- Video 4 -->
-        <div class="carousel-item" style="max-width: 80%; margin: 0 auto;"> <!-- Adjust the size of the video and center it -->
-          <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
-            <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/O-PA/row_2_col_1.mp4" type="video/mp4">
-          </video>
-        </div>
-
-        <!-- Video 5 -->
-        <div class="carousel-item" style="max-width: 80%; margin: 0 auto;">
-          <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
-            <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/O-PA/row_6_col_1.mp4" type="video/mp4">
-          </video>
-        </div>
-
-        <!-- Video 6 -->
-        <div class="carousel-item" style="max-width: 80%; margin: 0 auto;">
-          <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
-            <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/O-PA/row_20_col_0.mp4" type="video/mp4">
-          </video>
-        </div>
-      </div>
-    </div>
-
-
-
-    <h4 class="subtitle is-4">
-      <center>Replacement-without-noise with Open-Sora</center>
-    </h4>
-
-    <!-- Carousel for Videos -->
-    <div class="hero-body" style="padding: 10px 0;"> <!-- Reduce vertical padding -->
-      <div id="carousel-demo" class="hero-carousel carousel is-centered" style="overflow: hidden;">
-        <!-- Video 1 -->
-        <div class="carousel-item" style="max-width: 80%; margin: 0 auto;"> <!-- Adjust the size of the video and center it -->
-          <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
-            <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/O-RN/row_1_col_0.mp4" type="video/mp4">
-          </video>
-        </div>
-
-        <!-- Video 2 -->
-        <div class="carousel-item" style="max-width: 80%; margin: 0 auto;">
-          <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
-            <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/O-RN/row_4_col_1.mp4" type="video/mp4">
-          </video>
-        </div>
-
-        <!-- Video 3 -->
-        <div class="carousel-item" style="max-width: 80%; margin: 0 auto;">
-          <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
-            <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/O-RN/row_5_col_1.mp4" type="video/mp4">
-          </video>
-        </div>
-
-        <!-- Video 4 -->
-        <div class="carousel-item" style="max-width: 80%; margin: 0 auto;"> <!-- Adjust the size of the video and center it -->
-          <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
-            <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/O-RN/row_2_col_0.mp4" type="video/mp4">
-          </video>
-        </div>
-
-        <!-- Video 5 -->
-        <div class="carousel-item" style="max-width: 80%; margin: 0 auto;">
-          <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
-            <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/O-RN/row_6_col_1.mp4" type="video/mp4">
-          </video>
-        </div>
-
-        <!-- Video 6 -->
-        <div class="carousel-item" style="max-width: 80%; margin: 0 auto;">
-          <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
-            <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/O-RN/row_20_col_1.mp4" type="video/mp4">
-          </video>
-        </div>
-      </div>
-    </div>
-
-
-
-    <h4 class="subtitle is-4">
-      <center>StreamingSVD from StreamingT2V</center>
-    </h4>
-
-    <!-- Carousel for Videos -->
-    <div class="hero-body" style="padding: 10px 0;"> <!-- Reduce vertical padding -->
-      <div id="carousel-demo" class="hero-carousel carousel is-centered" style="overflow: hidden;">
-        <!-- Video 1 -->
-        <div class="carousel-item" style="max-width: 80%; margin: 0 auto;"> <!-- Adjust the size of the video and center it -->
-          <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
-            <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/StreamingT2V/row_1_col_0.mp4" type="video/mp4">
-          </video>
-        </div>
-
-        <!-- Video 2 -->
-        <div class="carousel-item" style="max-width: 80%; margin: 0 auto;">
-          <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
-            <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/StreamingT2V/row_4_col_0.mp4" type="video/mp4">
-          </video>
-        </div>
-
-        <!-- Video 3 -->
-        <div class="carousel-item" style="max-width: 80%; margin: 0 auto;">
-          <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
-            <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/StreamingT2V/row_5_col_0.mp4" type="video/mp4">
-          </video>
-        </div>
-
-        <!-- Video 4 -->
-        <div class="carousel-item" style="max-width: 80%; margin: 0 auto;"> <!-- Adjust the size of the video and center it -->
-          <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
-            <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/StreamingT2V/row_2_col_0.mp4" type="video/mp4">
-          </video>
-        </div>
-
-        <!-- Video 5 -->
-        <div class="carousel-item" style="max-width: 80%; margin: 0 auto;">
-          <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
-            <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/StreamingT2V/row_6_col_0.mp4" type="video/mp4">
-          </video>
-        </div>
-
-        <!-- Video 6 -->
-        <div class="carousel-item" style="max-width: 80%; margin: 0 auto;">
-          <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
-            <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/StreamingT2V/row_20_col_0.mp4" type="video/mp4">
-          </video>
-        </div>
-      </div>
-    </div>
-
-
-
-    <h4 class="subtitle is-4">
-      <center>SVD-XT from Stable Video Diffusion</center>
-    </h4>
-
-    <!-- Carousel for Videos -->
-    <div class="hero-body" style="padding: 10px 0;"> <!-- Reduce vertical padding -->
-      <div id="carousel-demo" class="hero-carousel carousel is-centered" style="overflow: hidden;">
-        <!-- Video 1 -->
-        <div class="carousel-item" style="max-width: 80%; margin: 0 auto;"> <!-- Adjust the size of the video and center it -->
-          <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
-            <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/SVD/row_1_col_0.mp4" type="video/mp4">
-          </video>
-        </div>
-
-        <!-- Video 2 -->
-        <div class="carousel-item" style="max-width: 80%; margin: 0 auto;">
-          <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
-            <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/SVD/row_4_col_0.mp4" type="video/mp4">
-          </video>
-        </div>
-
-        <!-- Video 3 -->
-        <div class="carousel-item" style="max-width: 80%; margin: 0 auto;">
-          <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
-            <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/SVD/row_5_col_0.mp4" type="video/mp4">
-          </video>
-        </div>
-
-        <!-- Video 4 -->
-        <div class="carousel-item" style="max-width: 80%; margin: 0 auto;"> <!-- Adjust the size of the video and center it -->
-          <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
-            <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/SVD/row_2_col_0.mp4" type="video/mp4">
-          </video>
-        </div>
-
-        <!-- Video 5 -->
-        <div class="carousel-item" style="max-width: 80%; margin: 0 auto;">
-          <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
-            <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/SVD/row_6_col_0.mp4" type="video/mp4">
-          </video>
-        </div>
-
-        <!-- Video 6 -->
-        <div class="carousel-item" style="max-width: 80%; margin: 0 auto;">
-          <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
-            <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/SVD/row_20_col_0.mp4" type="video/mp4">
-          </video>
+        <div class="column is-four-fifths">
+          <div id="carousel-demo" class="hero-carousel carousel is-centered" style="overflow: hidden;">
+            <!-- Col 1 -->
+            <div class="carousel-item" style="max-width: 60%; margin: 0 auto;">
+              <div class="container">
+                <video id="teaser" class="first-column-video" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="./static/videos/PA-M/row_1.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" class="first-column-video" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/M-RW/row_1_col_0.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" class="first-column-video" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/O-PA/row_1_col_1.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" class="first-column-video" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/O-RN/row_1_col_0.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" class="first-column-video" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/StreamingT2V/row_1_col_0.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" class="first-column-video" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/SVD/row_1_col_0.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" class="first-column-video" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/FIFO-OSP/row_1_col_0.mp4" type="video/mp4">
+                </video>
+              </div>
+            </div>
+            <!-- Col 2 -->
+            <div class="carousel-item" style="max-width: 60%; margin: 0 auto;">
+              <div class="container">
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="./static/videos/PA-M/row_4.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/M-RW/row_4_col_0.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/O-PA/row_4_col_1.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/O-RN/row_4_col_1.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/StreamingT2V/row_4_col_0.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/SVD/row_4_col_0.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/FIFO-OSP/row_4_col_0.mp4" type="video/mp4">
+                </video>
+              </div>
+            </div>
+            <!-- Col 3 -->
+            <div class="carousel-item" style="max-width: 60%; margin: 0 auto;">
+              <div class="container">
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="./static/videos/PA-M/row_5.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/M-RW/row_5_col_1.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/O-PA/row_5_col_0.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/O-RN/row_5_col_1.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/StreamingT2V/row_5_col_0.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/SVD/row_5_col_0.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/FIFO-OSP/row_5_col_0.mp4" type="video/mp4">
+                </video>
+              </div>
+            </div>
+            <!-- Col 4 -->
+            <div class="carousel-item" style="max-width: 60%; margin: 0 auto;">
+              <div class="container">
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="./static/videos/PA-M/row_2.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/M-RW/row_2_col_1.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/O-PA/row_2_col_1.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/O-RN/row_2_col_0.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/StreamingT2V/row_2_col_0.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/SVD/row_2_col_0.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/FIFO-OSP/row_2_col_0.mp4" type="video/mp4">
+                </video>
+              </div>
+            </div>
+            <!-- Col 5 -->
+            <div class="carousel-item" style="max-width: 60%; margin: 0 auto;">
+              <div class="container">
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="./static/videos/PA-M/row_6.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/M-RW/row_6_col_0.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/O-PA/row_6_col_1.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/O-RN/row_6_col_0.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/StreamingT2V/row_6_col_0.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/SVD/row_6_col_0.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/FIFO-OSP/row_6_col_0.mp4" type="video/mp4">
+                </video>
+              </div>
+            </div>
+            <!-- Col 6 -->
+            <div class="carousel-item" style="max-width: 60%; margin: 0 auto;">
+              <div class="container">
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="./static/videos/PA-M/row_20.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/M-RW/row_14_col_1.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/O-PA/row_20_col_0.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/O-RN/row_20_col_1.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/StreamingT2V/row_20_col_0.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/SVD/row_20_col_0.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/FIFO-OSP/row_20_col_0.mp4" type="video/mp4">
+                </video>
+              </div>
+            </div>
+            <!-- Col 7 -->
+            <div class="carousel-item" style="max-width: 60%; margin: 0 auto;">
+              <div class="container">
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="./static/videos/PA-M/row_10.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/M-RW/row_10_col_0.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/O-PA/row_10_col_1.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/O-RN/row_10_col_0.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/StreamingT2V/row_10_col_0.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/SVD/row_10_col_0.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/FIFO-OSP/row_10_col_0.mp4" type="video/mp4">
+                </video>
+              </div>
+            </div>
+            <!-- Col 8 -->
+            <div class="carousel-item" style="max-width: 60%; margin: 0 auto;">
+              <div class="container">
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="./static/videos/PA-M/row_12.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/M-RW/row_12_col_0.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/O-PA/row_12_col_1.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/O-RN/row_12_col_0.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/StreamingT2V/row_12_col_0.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/SVD/row_12_col_0.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/FIFO-OSP/row_12_col_0.mp4" type="video/mp4">
+                </video>
+              </div>
+            </div>
+            <!-- Col 9 -->
+            <div class="carousel-item" style="max-width: 60%; margin: 0 auto;">
+              <div class="container">
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="./static/videos/PA-M/row_15.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/M-RW/row_15_col_1.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/O-PA/row_15_col_0.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/O-RN/row_15_col_1.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/StreamingT2V/row_15_col_0.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/SVD/row_15_col_0.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/FIFO-OSP/row_15_col_0.mp4" type="video/mp4">
+                </video>
+              </div>
+            </div>
+            <!-- Col 10 -->
+            <div class="carousel-item" style="max-width: 60%; margin: 0 auto;">
+              <div class="container">
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="./static/videos/PA-M/row_16.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/M-RW/row_16_col_0.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/O-PA/row_16_col_1.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/O-RN/row_16_col_0.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/StreamingT2V/row_16_col_0.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/SVD/row_16_col_0.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/FIFO-OSP/row_16_col_0.mp4" type="video/mp4">
+                </video>
+              </div>
+            </div>
+            <!-- Col 11 -->
+            <div class="carousel-item" style="max-width: 60%; margin: 0 auto;">
+              <div class="container">
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="./static/videos/PA-M/row_22.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/M-RW/row_22_col_1.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/O-PA/row_22_col_0.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/O-RN/row_22_col_1.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/StreamingT2V/row_22_col_0.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/SVD/row_22_col_0.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/FIFO-OSP/row_22_col_0.mp4" type="video/mp4">
+                </video>
+              </div>
+            </div>
+            <!-- Col 12 -->
+            <div class="carousel-item" style="max-width: 60%; margin: 0 auto;">
+              <div class="container">
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="./static/videos/PA-M/row_24.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/M-RW/row_24_col_0.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/O-PA/row_24_col_1.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/O-RN/row_24_col_0.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/StreamingT2V/row_24_col_0.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/SVD/row_24_col_0.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/FIFO-OSP/row_24_col_0.mp4" type="video/mp4">
+                </video>
+              </div>
+            </div>
+            <!-- Col 13 -->
+            <div class="carousel-item" style="max-width: 60%; margin: 0 auto;">
+              <div class="container">
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="./static/videos/PA-M/row_33.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/M-RW/row_33_col_1.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/O-PA/row_33_col_0.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/O-RN/row_33_col_1.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/StreamingT2V/row_33_col_0.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/SVD/row_33_col_0.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/FIFO-OSP/row_33_col_0.mp4" type="video/mp4">
+                </video>
+              </div>
+            </div>
+            <!-- Col 14 -->
+            <div class="carousel-item" style="max-width: 60%; margin: 0 auto;">
+              <div class="container">
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="./static/videos/PA-M/row_35.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/M-RW/row_35_col_1.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/O-PA/row_35_col_0.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/O-RN/row_35_col_1.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/StreamingT2V/row_35_col_0.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/SVD/row_35_col_0.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/FIFO-OSP/row_35_col_0.mp4" type="video/mp4">
+                </video>
+              </div>
+            </div>
+            <!-- Col 15 -->
+            <div class="carousel-item" style="max-width: 60%; margin: 0 auto;">
+              <div class="container">
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="./static/videos/PA-M/row_36.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/M-RW/row_36_col_0.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/O-PA/row_36_col_1.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/O-RN/row_36_col_0.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/StreamingT2V/row_36_col_0.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/SVD/row_36_col_0.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/FIFO-OSP/row_36_col_0.mp4" type="video/mp4">
+                </video>
+              </div>
+            </div>
+            <!-- Col 16 -->
+            <div class="carousel-item" style="max-width: 60%; margin: 0 auto;">
+              <div class="container">
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="./static/videos/PA-M/row_40.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/M-RW/row_40_col_0.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/O-PA/row_40_col_1.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/O-RN/row_40_col_0.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/StreamingT2V/row_40_col_0.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/SVD/row_40_col_0.mp4" type="video/mp4">
+                </video>
+                <video id="teaser" autoplay muted loop playsinline controls style="width: 100%; height: auto;">
+                  <source src="https://huggingface.co/datasets/progressive-autoregressive-vdm/pavdm_results/resolve/main/FIFO-OSP/row_40_col_0.mp4" type="video/mp4">
+                </video>
+              </div>
+            </div>
+
+          </div>
         </div>
       </div>
     </div>
-
-
-
-
   </div>
-</section>
-
-
-
-
-
+</section>  
 
 <footer class="footer">
   <div class="container">
